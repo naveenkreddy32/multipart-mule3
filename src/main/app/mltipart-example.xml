@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+	<http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+	<http:request-config name="HTTP_Request_Configuration" host="localhost" port="8081" doc:name="HTTP Request Configuration"/>
+	<flow name="multipart-exampleFlow">
+		<http:listener config-ref="HTTP_Listener_Configuration" path="/multipart" doc:name="HTTP"/>
+		<logger message="Parsing multipart" level="INFO" doc:name="Logger"/>
+		<foreach collection="#[message.inboundAttachments]" doc:name="For Each">
+			<logger message="Counter is:: #[flowVars.counter]" level="INFO" doc:name="Logger"/>
+			<choice doc:name="Check FileName">
+				<when expression="#[payload.getDataSource().getPart().getFileName() == 'sample.xml']">
+					<logger message="Recieved sample.xml file so extracting data to payload" level="INFO" doc:name="sample.xml"/>
+					<set-payload value="#[payload.getDataSource().getContent()]" mimeType="text/xml" doc:name="Set Payload"/>
+					<byte-array-to-string-transformer mimeType="text/xml" doc:name="Byte Array to String"/>
+					<set-variable variableName="xml" value="#[payload]" doc:name="Variable"/>
+				</when>
+				<otherwise>
+					<logger message="Not sample.xml. So pass through" level="INFO" doc:name="not sample.xml"/>
+				</otherwise>
+			</choice>
+		</foreach>
+		<set-payload value="#[flowVars.xml]" mimeType="application/xml" doc:name="Set Payload"/>
+		<logger message="Payload is #[payload]" level="INFO" doc:name="Log Payload"/>
+	</flow>
+	<flow name="multipart-exampleFlow1">
+		<http:listener config-ref="HTTP_Listener_Configuration" path="/sendmultipart" doc:name="HTTP"/>
+		<set-attachment attachmentName="myxml" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;&lt;soapenv:Body&gt;&lt;ns2:submitSingleFileResponse xmlns:ns2=&quot;http://bac.com/wsdl/dcrs/capture/servicing/UnIndexedDocumentSaveServiceV001&quot;&gt;&lt;return&gt;&lt;batchInfo&gt;&lt;platformBatchUID&gt;42F80265280544EFB87125261BA4F944&lt;/platformBatchUID&gt;&lt;/batchInfo&gt;&lt;/return&gt;&lt;/ns2:submitSingleFileResponse&gt;&lt;/soapenv:Body&gt;&lt;/soapenv:Envelope&gt;" contentType="text/xml" doc:name="Attachment"/>
+		<http:request config-ref="HTTP_Request_Configuration" path="/multipart" method="POST" doc:name="HTTP"/>
+	</flow>
+</mule>
