@@ -13,7 +13,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 		<http:listener config-ref="HTTP_Listener_Configuration" path="/multipart" doc:name="HTTP"/>
 		<logger message="Parsing multipart" level="INFO" doc:name="Logger"/>
 		<foreach collection="#[message.inboundAttachments]" doc:name="For Each">
-			<logger message="Counter is:: #[flowVars.counter]" level="INFO" doc:name="Logger"/>
+			<logger message="Counter is: #[flowVars.counter]" level="INFO" doc:name="Logger"/>
 			<choice doc:name="Check FileName">
 				<when expression="#[payload.getDataSource().getPart().getFileName() == 'sample.xml']">
 					<logger message="Recieved sample.xml file so extracting data to payload" level="INFO" doc:name="sample.xml"/>
