@@ -1,0 +1,3 @@
+curl --location --request POST 'http://localhost:8081/multipart' \
+--form 'file1=@"/Users/naveenkreddynagireddy/Desktop/sample copy.txt"' \
+--form 'file2=@"/Users/naveenkreddynagireddy/Desktop/sample.xml"'
