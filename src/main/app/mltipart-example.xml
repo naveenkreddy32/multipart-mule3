@@ -15,7 +15,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 		<foreach collection="#[message.inboundAttachments]" doc:name="For Each">
 			<logger message="Counter is: #[flowVars.counter]" level="INFO" doc:name="Logger"/>
 			<choice doc:name="Check FileName">
-				<when expression="#[payload.getDataSource().getPart().getFileName() == 'sample.xml']">
+				<when expression="#[payload.getDataSource().getPart().getFileName() contains '.xml']">
 					<logger message="Recieved sample.xml file so extracting data to payload" level="INFO" doc:name="sample.xml"/>
 					<set-payload value="#[payload.getDataSource().getContent()]" mimeType="text/xml" doc:name="Set Payload"/>
 					<byte-array-to-string-transformer mimeType="text/xml" doc:name="Byte Array to String"/>
